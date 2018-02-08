@@ -49,34 +49,3 @@ const findmaxima = (threshold,kernel,wrap = BORDER_CLAMP_TO_BORDER) => (raster,c
 }
 
 
-
-
-
-
-
-
-const convolve = (kernel, wrap = cpu.BORDER_CLAMP_TO_BORDER) => (raster,copy=true) => {
-
-  // Calc pixel value at position `index`in array `pixels` of size `width`x`height` with `kernel`
-  const linearFunc = (index,pixels,width,height,kernel,borderFunc) => {
-    return kernel.reduce( (sum,v) => {
-      sum += borderFunc(
-        pixels,
-        cpu.getX(index,width) + v.offsetX, 
-        cpu.getY(index,width) + v.offsetY,
-        width,height
-      ) * v.weight;
-      return sum;
-    },0.0);  
-  };
-
-  // Main 
-  let border = (wrap === cpu.BORDER_CLAMP_TO_EDGE) ? fltr.clampEdge : ( (wrap === cpu.BORDER_REPEAT) ? fltr.repeat : ( (wrap === cpu.BORDER_MIRROR) ? mirror : fltr.clampBorder));
-  console.log(border.name);
-
-  let output =  T.Raster.from(raster,false);
-
-  output.pixelData = fltr._convolve(raster.pixelData,raster.width,raster.height,kernel,border,linearFunc);
-
-  return output;
-}
