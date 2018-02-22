@@ -25,17 +25,17 @@
 // Calc pixel value at position `index`in array `pixels` of size `width`x`height` with `kernel`
 const findmaxima = (threshold,kernel,wrap = BORDER_CLAMP_TO_BORDER) => (raster,copy_mode=true) => {
   const findMaxFunc = (index,pixels,width,height,kernel,borderFunc) => {
-    let [top,brim] = kernel.reduce( (sum,v) => {
+    let [top,brim] = kernel.reduce( (hat,v) => {
       let pix = borderFunc(
         pixels,
         cpu.getX(index,width) + v.offsetX,
         cpu.getY(index,width) + v.offsetY,
         width,height);
       // Large kernel   
-      sum[0] += pix;
+      hat[0] = Math.max(hat[0],pix);
       // Inner kernel
-      sum[1] += pix * (v.weight & 2);
-      return sum;
+      hat[1] = Math.max(hat[1],pix * (v.weight & 2));
+      return hat;
     },[0.0,0.0]);
     return (top - brim > threshold) ? 255 : 0;
   };
@@ -47,5 +47,4 @@ const findmaxima = (threshold,kernel,wrap = BORDER_CLAMP_TO_BORDER) => (raster,c
   output.pixelData = _convolve(output.pixelData,output.width,output.height,kernel,border,findMaxFunc);
   return output;
 }
-
 
